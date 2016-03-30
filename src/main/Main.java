@@ -20,6 +20,50 @@ public class Main {
 
 	public static void main(String[] args) throws IOException{
 		ArrayList<HepInstance> instances = loadInstancesFromFile(PATH_TO_TRAINING);
+		String[] categories = getCategories(PATH_TO_TRAINING);
+		for(HepInstance each: instances){
+			System.out.println("---------------- \n");
+			for(String eachKey: each.fields.keySet()){
+				System.out.println(eachKey + " : " + each.fields.get(eachKey));
+			}
+		}
+		for(String each: categories){
+			System.out.println(each);
+		}
+		Node root = buildTree(instances, categories);
+	}
+
+	private static Node buildTree(ArrayList<HepInstance> instances, String[] categories) {
+		
+	}
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	private static String[] getCategories(String path) throws IOException {
+		ArrayList<String> lines = (ArrayList<String>) Files.readAllLines(Paths.get(path), Charset.forName("utf8"));
+		lines.remove(0);
+		String[] categories = lines.get(0).split("\t");
+		return categories;
 	}
 
 	private static ArrayList<HepInstance> loadInstancesFromFile(String path) throws IOException {
@@ -59,18 +103,13 @@ public class Main {
 	}
 		return instances;
 	
-	
-	
-	
-	
-
-
-
 }
 
 	
 	
-	
+	public static void algorithmTbh(){
+		
+	}
 	
 	
 	
