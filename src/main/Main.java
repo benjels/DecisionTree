@@ -34,7 +34,7 @@ public class Main {
 	}
 
 	private static Node buildTree(ArrayList<HepInstance> instances, String[] categories) {
-		
+		this will pass two lists of instances (one for TrueChild and one for FalseChild) and get a double value in return to some helper method who works out the purity of some category split. We don't actually need to create the child nodes or anything
 	}
 
 	
