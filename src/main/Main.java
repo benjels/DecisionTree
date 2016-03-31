@@ -7,7 +7,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 
 import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
@@ -20,11 +22,12 @@ import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 public class Main {
 
 	public static String PATH_TO_TRAINING = "data/hepatitis-training.dat";
+	public static String PATH_TO_TESTING = "data/hepatitis-test.dat";
 
 	public static void main(String[] args) throws IOException{
 		ArrayList<HepInstance> instances = loadInstancesFromFile(PATH_TO_TRAINING);
 		ArrayList<String> attributes = getCategories(PATH_TO_TRAINING);
-		for(HepInstance each: instances){
+	/*	for(HepInstance each: instances){
 			System.out.println("---------------- \n");
 			for(String eachKey: each.fields.keySet()){
 				System.out.println(eachKey + " : " + each.fields.get(eachKey));
@@ -32,8 +35,8 @@ public class Main {
 		}
 		for(String each: attributes){
 			System.out.println(each);
-		}
-		Node root = buildTree(instances, attributes);
+		}*/
+		Node root = buildTree(instances, attributes, 0);
 
 		/*//test out that attribute goodness method:
 		ArrayList<HepInstance> testInstances = new ArrayList<>();
@@ -69,6 +72,75 @@ public class Main {
 		assert(testInstances.size() == 10);
 		double goodness = calculateAttributeGoodness("attribute", testInstances);
 		assert(goodness == 0.23809523809523808):"it should be 0.238, but it is:" + goodness;*/
+	
+		//WE BUILT OUR TREE HOPEFULLY, SO DO THE TESTS
+		ArrayList<HepInstance> testInstances = loadInstancesFromFile(PATH_TO_TESTING);
+		for(HepInstance each: testInstances){
+			System.out.println("---------------- \n");
+			for(String eachKey: each.fields.keySet()){
+				System.out.println(eachKey + " : " + each.fields.get(eachKey));
+			}
+		}
+		classifyInstances(testInstances, root);	
+		//breadthFirstSearch(root);
+	
+	}
+
+
+	public static void breadthFirstSearch(Node startPoint){
+		Queue<Node> queue = new LinkedList<Node>();
+		queue.add(startPoint);
+		while(!queue.isEmpty()){
+			Node visitingNode = queue.poll();
+			if(visitingNode instanceof LeafNode){
+				LeafNode leaf = (LeafNode)visitingNode;
+				System.out.println(leaf.depth + "Leaf" + leaf.outcomeClass);
+			}else{
+				InternalNode internal = (InternalNode)visitingNode;
+				System.out.println(internal.depth + "Internal" + internal.attributeName);
+				for(Node eachChild: internal.getChildren()){
+					queue.add(eachChild);
+				}
+			}
+		}
+	}
+	
+	
+	private static void classifyInstances(ArrayList<HepInstance> testInstances, Node root) {
+		int success = 0;
+		int fail = 0;
+		for(HepInstance eachInstance: testInstances){
+			Boolean actualClass = eachInstance.fields.get("class");
+			Boolean predictedClass = descendTree(eachInstance, root);
+			if(actualClass == predictedClass){
+				success++;
+			}else{
+				fail++;
+			}
+			System.out.println("success: " + success);
+			System.out.println("fail: " + fail);
+		}
+	}
+
+
+	private static Boolean descendTree(HepInstance instance, Node root) {
+		//if we reached a leaf, we should return the outcome:
+		if(root instanceof LeafNode){
+			LeafNode leaf = (LeafNode) root;
+			System.out.println("i reached a leaf and I'm classifying as " + leaf.outcomeClass + " and my actual class is: " + instance.fields.get("class"));
+			return leaf.outcomeClass;
+		}
+		//descend the branch that is appropriate for this instance
+		InternalNode internal =  (InternalNode) root;
+		//if this attribute is true, go left, else go right
+		if(instance.fields.get(internal.attributeName)){
+			System.out.println("my attribute:" + internal.attributeName + " is " + instance.fields.get(internal.attributeName) + " so im going left");
+			return descendTree(instance, internal.getChildren().get(0));
+		}else{
+			System.out.println("my attribute:" + internal.attributeName + " is " + instance.fields.get(internal.attributeName) + " so im going right");
+			return descendTree(instance, internal.getChildren().get(1));
+		}
+		
 	}
 
 
@@ -78,11 +150,12 @@ public class Main {
 	 * @param categories all of the attributes that we can possibly use at this point to divide up our instances
 	 * @return a node. Interior nodes represent a category that is used to split the instances. A leaf node is used to represent a certain outcome class that should be taken when it is reached.
 	 */
-	public static Node buildTree(ArrayList<HepInstance> instances, ArrayList<String> attributes) {
+	public static Node buildTree(ArrayList<HepInstance> instances, ArrayList<String> attributes, int depth) {
 
 		//if our list of instances is empty, we should return a leaf node that maps to the overall most likely class //this is basically "no applicable training data available"
 		if(instances.isEmpty()){
-			return new LeafNode(true);//true i.e. live is the baseline class
+			System.out.println("creating a leaf node with value: " + true + " cause no more instances");
+			return new LeafNode(true, depth);//true i.e. live is the baseline class
 		}
 
 		//if our list of instances are all of the same class, we should return a leaf node that maps to that class
@@ -94,7 +167,8 @@ public class Main {
 			}
 		}
 		if(allSameClass){
-			return new LeafNode(firstInstanceClass);//if first instance's class is q, and all instances are of class q, then q must be majority class obvs
+			System.out.println("creating a leaf node with value: " + firstInstanceClass + " because we are pure");
+			return new LeafNode(firstInstanceClass, depth);//if first instance's class is q, and all instances are of class q, then q must be majority class obvs
 		}
 
 		//if our set of attributes is empty (we ran out), then we should return a leaf node that maps to the majority class of the instances in this node
@@ -110,9 +184,11 @@ public class Main {
 				}
 			}
 			if(liveClassCount > dieClassCount){
-				return new LeafNode(true);
+				System.out.println("creating a leaf node with value: " + true);
+				return new LeafNode(true, depth);
 			}else if(liveClassCount < dieClassCount){
-				return new LeafNode(false);
+				System.out.println("creating a leaf node with value: " + false);
+				return new LeafNode(false, depth);
 			}else{
 				assert(false):"we have an equal split of class outcomes in this point with no attributes. should choose a random one.";
 			}
@@ -145,15 +221,21 @@ public class Main {
 		}
 		assert(bestAttrTrueInstances.size() + bestAttrFalseInstances.size() == instances.size());
 		//create a new internal node with the name of the attribute that has the best purity measure
-		InternalNode internal = new InternalNode(bestAttributeName);
+		System.out.println("creating an internal node with the attribute: " + bestAttributeName);
+		InternalNode internal = new InternalNode(bestAttributeName, depth);
 		//side effects are cool. Have to remove from attributes list here
 		int debug = attributes.size();
-		attributes.remove(bestAttributeName);
-		assert(debug - 1 == attributes.size());
+		ArrayList<String> newAttributes = new ArrayList<>();
+		for(String each: attributes){
+			if(!each.equals(bestAttributeName)){
+				newAttributes.add(each);
+			}
+		}
+		assert(debug - 1 == newAttributes.size());
 		//first add the left/true/index0 child
-		internal.addChild(buildTree(bestAttrTrueInstances, attributes));
+		internal.addChild(buildTree(bestAttrTrueInstances, newAttributes, depth + 1));
 		//now add the right/false/index1 child
-		internal.addChild(buildTree(bestAttrFalseInstances, attributes));
+		internal.addChild(buildTree(bestAttrFalseInstances, newAttributes, depth + 1));
 		return internal;
 	}
 
@@ -211,8 +293,8 @@ public class Main {
 		//assert(attrTrueClassFalseCount == 4);
 		if(trueAttributes.size() == 0){
 			assert(falseAttributes.size() == instances.size());
-			System.out.println(falseAttributes.size());
-			System.out.println(instances.size());
+			//System.out.println(falseAttributes.size());
+			//System.out.println(instances.size());
 		}
 		//assert((double)trueAttributes.size() != 0): "failing to generate purity measures because this value is 0 which gives us a NaN. This is 0 in cases where all of the instances are e.g. false for this attribute i.e. all in the right-side branch";
 		double attrTruePurity;
@@ -251,7 +333,7 @@ public class Main {
 
 		//now we are ready to find the weighted purity of these potential child nodes
 		double weightedAveragePurity = (trueAttrProb * attrTruePurity) + (falseAttrProb * attrFalsePurity);
-		System.out.println(weightedAveragePurity);
+		//System.out.println(weightedAveragePurity);
 
 		return weightedAveragePurity;
 	}

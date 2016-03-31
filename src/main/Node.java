@@ -1,5 +1,12 @@
 package main;
 //thing that makes up the tree
-public class Node {
+public abstract class Node {
+	
+	public Node(int depth) {
+		super();
+		this.depth = depth;
+	}
+
+	public final int depth;
 
 }
