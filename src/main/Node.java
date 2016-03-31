@@ -1,8 +1,5 @@
 package main;
-
-import java.util.ArrayList;
-
+//thing that makes up the tree
 public class Node {
-public ArrayList<Node> children = new ArrayList<>();
 
 }
