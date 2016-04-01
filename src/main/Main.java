@@ -21,8 +21,10 @@ import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
  */
 public class Main {
 
-	public static String PATH_TO_TRAINING = "data/hepatitis-training.dat";
-	public static String PATH_TO_TESTING = "data/hepatitis-test.dat";
+	//public static String PATH_TO_TRAINING = "data/hepatitis-training.dat";
+	//public static String PATH_TO_TESTING = "data/hepatitis-test.dat";
+	//public static String PATH_TO_TRAINING = "data/golf-training.dat";
+	//public static String PATH_TO_TESTING = "data/golf-test.dat";
 	//public static String PATH_TO_TRAINING = "data/hepatitis-training-run1.dat";
 	//public static String PATH_TO_TESTING = "data/hepatitis-test-run1.dat"; 23 success 14 fail
 	//public static String PATH_TO_TRAINING = "data/hepatitis-training-run2.dat"; 28 9
@@ -41,8 +43,8 @@ public class Main {
 	//public static String PATH_TO_TESTING = "data/hepatitis-test-run8.dat";
 	//public static String PATH_TO_TRAINING = "data/hepatitis-training-run9.dat"; 29 8
 	//public static String PATH_TO_TESTING = "data/hepatitis-test-run9.dat";
-	//public static String PATH_TO_TRAINING = "data/hepatitis-training-run10.dat"; 27 10
-	//public static String PATH_TO_TESTING = "data/hepatitis-test-run10.dat";
+	public static String PATH_TO_TRAINING = "data/hepatitis-training-run10.dat"; //27 10
+	public static String PATH_TO_TESTING = "data/hepatitis-test-run10.dat";
 
 
 	public static void main(String[] args) throws IOException{
@@ -59,8 +61,8 @@ public class Main {
 		}*/
 		Node root = buildTree(instances, attributes, 0);
 
-		/*//test out that attribute goodness method:
-		ArrayList<HepInstance> testInstances = new ArrayList<>();
+		//test out that attribute goodness method:
+/*		ArrayList<HepInstance> testInstances = new ArrayList<>();
 		//make the three instances with true attr and class True
 		HashMap<String, Boolean> trueAttrTrueClass = new HashMap<>();
 		trueAttrTrueClass.put("attribute", true);
@@ -68,13 +70,11 @@ public class Main {
 		testInstances.add(new HepInstance(trueAttrTrueClass));
 		testInstances.add(new HepInstance(trueAttrTrueClass));
 		testInstances.add(new HepInstance(trueAttrTrueClass));
+		testInstances.add(new HepInstance(trueAttrTrueClass));
 		//make the four instances with true attr and class False
 		HashMap<String, Boolean> trueAttrFalseClass = new HashMap<>();
 		trueAttrFalseClass.put("attribute", true);
 		trueAttrFalseClass.put("class", false); //should be false. testing that more purity is lower value
-		testInstances.add(new HepInstance(trueAttrFalseClass));
-		testInstances.add(new HepInstance(trueAttrFalseClass));
-		testInstances.add(new HepInstance(trueAttrFalseClass));
 		testInstances.add(new HepInstance(trueAttrFalseClass));
 		//make the two instances with false attr and class True
 		HashMap<String, Boolean> falseAttrTrueClass = new HashMap<>();
@@ -86,12 +86,12 @@ public class Main {
 		HashMap<String, Boolean> falseAttrFalseClass = new HashMap<>();
 		falseAttrFalseClass.put("attribute", false);
 		falseAttrFalseClass.put("class", false);
-		testInstances.add(new HepInstance(falseAttrFalseClass));
+		testInstances.add(new HepInstance(falseAttrFalseClass));*/
 
 
 
-		assert(testInstances.size() == 10);
-		double goodness = calculateAttributeGoodness("attribute", testInstances);
+	//	assert(testInstances.size() == 10);
+	/*	double goodness = calculateAttributeGoodness("attribute", testInstances);
 		assert(goodness == 0.23809523809523808):"it should be 0.238, but it is:" + goodness;*/
 
 		//WE BUILT OUR TREE HOPEFULLY, SO DO THE TESTS
@@ -103,7 +103,7 @@ public class Main {
 			}
 		}
 		classifyInstances(testInstances, root);
-		//breadthFirstSearch(root);
+		breadthFirstSearch(root);
 
 	}
 
@@ -224,7 +224,9 @@ public class Main {
 		double bestAttributePurity = Double.POSITIVE_INFINITY;
 		String bestAttributeName = "no attribute selected";
 		for(String eachAttribute: attributes){
-			if(calculateAttributeGoodness(eachAttribute, instances) < bestAttributePurity){
+			double tempGoodness = calculateAttributeGoodness(eachAttribute, instances);
+			if(tempGoodness < bestAttributePurity){
+				bestAttributePurity = tempGoodness;
 				bestAttributeName = eachAttribute;
 			}
 		}
@@ -397,7 +399,7 @@ public class Main {
 		ArrayList<String> lines = (ArrayList<String>) Files.readAllLines(Paths.get(path), Charset.forName("utf8"));
 		lines.remove(0);
 		String[] categories = lines.get(0).split("\t");
-		assert(categories.length == 16):"it should be 16" + categories.length;
+		//assert(categories.length == 16):"it should be 16" + categories.length;
 		lines.remove(0);
 
 		//now read each individual instance and fill out its fields (its only field is a map that is dataName -> bool)
@@ -407,7 +409,7 @@ public class Main {
 				//System.out.println(eachLine);
 				//put the line into an array of strings
 				String[] instanceData = eachLine.split("\t");//eachLine.split("   |  | ")the values are separated by either 1 or 2 or three blank spaces. This is kinda a hack but id rather not have to get tokens out of a stream
-				assert(instanceData.length == 17):"that should be length 17...  THIS IS PROBABLY DUE TO THE INCONSISTENT FORMATTING OF THE PROVIDED FILES. I.E. SOME OF THEM REQUIRE TO BE SPLIT ON TABS AND OTHERS REQUIRE TO BE SPLIT ON SPACES. JUST SWAP OUT THE REGEX PATTERN IN THE LINE ABOVE THIS ONE" + instanceData.length;
+				//assert(instanceData.length == 17):"that should be length 17...  THIS IS PROBABLY DUE TO THE INCONSISTENT FORMATTING OF THE PROVIDED FILES. I.E. SOME OF THEM REQUIRE TO BE SPLIT ON TABS AND OTHERS REQUIRE TO BE SPLIT ON SPACES. JUST SWAP OUT THE REGEX PATTERN IN THE LINE ABOVE THIS ONE" + instanceData.length;
 				//build the map that this entry will use for its fields
 				HashMap<String, Boolean> fields = new HashMap<String, Boolean>();
 				//fill in the class
