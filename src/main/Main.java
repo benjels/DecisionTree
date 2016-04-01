@@ -23,6 +23,27 @@ public class Main {
 
 	public static String PATH_TO_TRAINING = "data/hepatitis-training.dat";
 	public static String PATH_TO_TESTING = "data/hepatitis-test.dat";
+	//public static String PATH_TO_TRAINING = "data/hepatitis-training-run1.dat";
+	//public static String PATH_TO_TESTING = "data/hepatitis-test-run1.dat"; 23 success 14 fail
+	//public static String PATH_TO_TRAINING = "data/hepatitis-training-run2.dat"; 28 9
+	//public static String PATH_TO_TESTING = "data/hepatitis-test-run2.dat";
+	//public static String PATH_TO_TRAINING = "data/hepatitis-training-run3.dat"; 30 7
+	//public static String PATH_TO_TESTING = "data/hepatitis-test-run3.dat";
+	//public static String PATH_TO_TRAINING = "data/hepatitis-training-run4.dat";
+	//public static String PATH_TO_TESTING = "data/hepatitis-test-run4.dat"; 29 8
+	//public static String PATH_TO_TRAINING = "data/hepatitis-training-run5.dat";
+	//public static String PATH_TO_TESTING = "data/hepatitis-test-run5.dat"; 29 8
+	//public static String PATH_TO_TRAINING = "data/hepatitis-training-run6.dat"; 28 9
+	//public static String PATH_TO_TESTING = "data/hepatitis-test-run6.dat";
+	//public static String PATH_TO_TRAINING = "data/hepatitis-training-run7.dat"; 32 5
+	//public static String PATH_TO_TESTING = "data/hepatitis-test-run7.dat";
+	//public static String PATH_TO_TRAINING = "data/hepatitis-training-run8.dat"; 30 7
+	//public static String PATH_TO_TESTING = "data/hepatitis-test-run8.dat";
+	//public static String PATH_TO_TRAINING = "data/hepatitis-training-run9.dat"; 29 8
+	//public static String PATH_TO_TESTING = "data/hepatitis-test-run9.dat";
+	//public static String PATH_TO_TRAINING = "data/hepatitis-training-run10.dat"; 27 10
+	//public static String PATH_TO_TESTING = "data/hepatitis-test-run10.dat";
+
 
 	public static void main(String[] args) throws IOException{
 		ArrayList<HepInstance> instances = loadInstancesFromFile(PATH_TO_TRAINING);
@@ -72,7 +93,7 @@ public class Main {
 		assert(testInstances.size() == 10);
 		double goodness = calculateAttributeGoodness("attribute", testInstances);
 		assert(goodness == 0.23809523809523808):"it should be 0.238, but it is:" + goodness;*/
-	
+
 		//WE BUILT OUR TREE HOPEFULLY, SO DO THE TESTS
 		ArrayList<HepInstance> testInstances = loadInstancesFromFile(PATH_TO_TESTING);
 		for(HepInstance each: testInstances){
@@ -81,9 +102,9 @@ public class Main {
 				System.out.println(eachKey + " : " + each.fields.get(eachKey));
 			}
 		}
-		classifyInstances(testInstances, root);	
+		classifyInstances(testInstances, root);
 		//breadthFirstSearch(root);
-	
+
 	}
 
 
@@ -104,8 +125,8 @@ public class Main {
 			}
 		}
 	}
-	
-	
+
+
 	private static void classifyInstances(ArrayList<HepInstance> testInstances, Node root) {
 		int success = 0;
 		int fail = 0;
@@ -117,9 +138,9 @@ public class Main {
 			}else{
 				fail++;
 			}
-			System.out.println("success: " + success);
-			System.out.println("fail: " + fail);
 		}
+		System.out.println("success: " + success);
+		System.out.println("fail: " + fail);
 	}
 
 
@@ -140,7 +161,7 @@ public class Main {
 			System.out.println("my attribute:" + internal.attributeName + " is " + instance.fields.get(internal.attributeName) + " so im going right");
 			return descendTree(instance, internal.getChildren().get(1));
 		}
-		
+
 	}
 
 
@@ -385,8 +406,8 @@ public class Main {
 			if(!eachLine.equals("")){
 				//System.out.println(eachLine);
 				//put the line into an array of strings
-				String[] instanceData = eachLine.split("   |  | ");//the values are separated by either 1 or 2 or three blank spaces. This is kinda a hack but id rather not have to get tokens out of a stream
-				assert(instanceData.length == 17):"that should be length 17..." + instanceData.length;
+				String[] instanceData = eachLine.split("\t");//eachLine.split("   |  | ")the values are separated by either 1 or 2 or three blank spaces. This is kinda a hack but id rather not have to get tokens out of a stream
+				assert(instanceData.length == 17):"that should be length 17...  THIS IS PROBABLY DUE TO THE INCONSISTENT FORMATTING OF THE PROVIDED FILES. I.E. SOME OF THEM REQUIRE TO BE SPLIT ON TABS AND OTHERS REQUIRE TO BE SPLIT ON SPACES. JUST SWAP OUT THE REGEX PATTERN IN THE LINE ABOVE THIS ONE" + instanceData.length;
 				//build the map that this entry will use for its fields
 				HashMap<String, Boolean> fields = new HashMap<String, Boolean>();
 				//fill in the class
